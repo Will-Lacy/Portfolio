@@ -679,3 +679,15 @@ input:checked+.slider:before {
 .dark #subheading {
   color: #f4e964;
 }
+/* Experience groups (Civilian / Military) */
+.exp-group {
+  font-size: 24px;
+  line-height: 36px;
+  margin: 32px 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--primary-color);
+}
+
+.exp-group:first-child {
+  margin-top: 0;
+}
