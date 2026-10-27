@@ -32,6 +32,10 @@
   <link rel="stylesheet" href="./dependencies/owl-carousel/css/owl.theme.default.min.css">
   <link rel="stylesheet" href="./css/style.css">
   <link rel="stylesheet" href="./css/responsive.css">
+  <style>
+    .cert-placeholder { aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: var(--gradient-color); color: #fff; font-size: 4rem; box-shadow: var(--box-shadow); }
+    .dark .cert-placeholder svg, .cert-placeholder svg { color: #fff; }
+  </style>
 </head>
 <body id="body">
   <button onclick="scrollToTop()" id="scroll-btn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
@@ -79,6 +83,7 @@
           <button type="button" data-filter=".CompTIA">CompTIA</button>
           <button type="button" data-filter=".Microsoft">Microsoft</button>
           <button type="button" data-filter=".other">Other</button>
+          <button type="button" data-filter=".award">Awards</button>
         </div>
         <div class="row grid">
           <div class="col-lg-4 col-md-6 col-sm-12 element-item CompTIA">
@@ -90,7 +95,7 @@
               </div>
               <div class="title py-4">
                 <h4 class="text-uppercase">CompTIA A+</h4>
-                <span class="text-secondary">CompTIA</span>
+                <span class="text-secondary">CompTIA · Issued Feb 2025 · Expires Feb 2028</span>
               </div>
             </div>
           </div>
@@ -103,7 +108,7 @@
               </div>
               <div class="title py-4">
                 <h4 class="text-uppercase">CompTIA Security+</h4>
-                <span class="text-secondary">CompTIA</span>
+                <span class="text-secondary">CompTIA · Issued Feb 2025 · Expires Feb 2028</span>
               </div>
             </div>
           </div>
@@ -116,7 +121,7 @@
               </div>
               <div class="title py-4">
                 <h4 class="text-uppercase">CompTIA Network+</h4>
-                <span class="text-secondary">CompTIA</span>
+                <span class="text-secondary">CompTIA · Issued Feb 2026 · Expires Feb 2029</span>
               </div>
             </div>
           </div>
@@ -129,7 +134,7 @@
               </div>
               <div class="title py-4">
                 <h4 class="text-uppercase">Azure Fundamentals</h4>
-                <span class="text-secondary">Microsoft</span>
+                <span class="text-secondary">Microsoft · Issued Feb 2025</span>
               </div>
             </div>
           </div>
@@ -141,8 +146,8 @@
                 </a>
               </div>
               <div class="title py-4">
-                <h4 class="text-uppercase">Azure Administrator</h4>
-                <span class="text-secondary">Microsoft</span>
+                <h4 class="text-uppercase">Azure Administrator Associate</h4>
+                <span class="text-secondary">Microsoft · Issued Jun 2025 · Renewed May 2026</span>
               </div>
             </div>
           </div>
@@ -154,8 +159,8 @@
                 </a>
               </div>
               <div class="title py-4">
-                <h4 class="text-uppercase">Azure DevOps Engineer Expert</h4>
-                <span class="text-secondary">Microsoft</span>
+                <h4 class="text-uppercase">DevOps Engineer Expert</h4>
+                <span class="text-secondary">Microsoft · Issued Aug 2025 · Renewed May 2026</span>
               </div>
             </div>
           </div>
@@ -168,7 +173,7 @@
               </div>
               <div class="title py-4">
                 <h4 class="text-uppercase">Linux Essentials</h4>
-                <span class="text-secondary">LPI</span>
+                <span class="text-secondary">LPI · Issued Feb 2026</span>
               </div>
             </div>
           </div>
@@ -181,7 +186,40 @@
               </div>
               <div class="title py-4">
                 <h4 class="text-uppercase">ITIL 4 Foundation</h4>
-                <span class="text-secondary">PeopleCert</span>
+                <span class="text-secondary">PeopleCert · Passed Mar 2026</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 col-sm-12 element-item other">
+            <div class="our-project">
+              <div class="img">
+                <div class="cert-placeholder"><i class="fas fa-cloud"></i></div>
+              </div>
+              <div class="title py-4">
+                <h4 class="text-uppercase">OCI 2025 Certified Foundations Associate</h4>
+                <span class="text-secondary">Oracle · Issued Jun 2025</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 col-sm-12 element-item other">
+            <div class="our-project">
+              <div class="img">
+                <div class="cert-placeholder"><i class="fas fa-user-secret"></i></div>
+              </div>
+              <div class="title py-4">
+                <h4 class="text-uppercase">Cyber Security 101</h4>
+                <span class="text-secondary">TryHackMe · Issued Feb 2025</span>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-6 col-sm-12 element-item award">
+            <div class="our-project">
+              <div class="img">
+                <div class="cert-placeholder"><i class="fas fa-award"></i></div>
+              </div>
+              <div class="title py-4">
+                <h4 class="text-uppercase">SCITLS Program Recognition</h4>
+                <span class="text-secondary">GDIT · Mar 2026</span>
               </div>
             </div>
           </div>
@@ -229,12 +267,10 @@
     function toggleTheme() {
       if (theme == 'light') {
         document.getElementById("body").classList.add('dark');
-        document.getElementsByClassName("theme-change-icon").src = "./img/light-theme-icon.png";
         theme = 'dark';
         localStorage.setItem("portfolio-theme", 'dark');
       } else {
         document.getElementById("body").classList.remove('dark');
-        document.getElementsByClassName("theme-change-icon").src = "./img/dark-theme-icon.png";
         theme = 'light';
         localStorage.setItem("portfolio-theme", 'light');
       }
