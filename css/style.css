@@ -12,15 +12,8 @@
 }
 
 mark {
-  color: black;
-  background-color: yellow;
-}
-
-mark:hover {
-  color: black !important;
-  background-color: yellow !important;
-  cursor: pointer;
-  -webkit-text-fill-color: black;
+  color: inherit;
+  background-color: transparent;
 }
 
 /* Text selection End */
