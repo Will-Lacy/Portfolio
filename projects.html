@@ -20,10 +20,10 @@
     <meta property="og:description"
         content="a webpage to showcase my experience, education, skill-set, projects, certificates, achievements and recommendations." />
     <link rel="shortcut icon" href="Wedding Photo.ico" type="image/x-icon">
-    <link rel="icon" href=""Wedding Photo.ico" type="image/x-icon">
-    <link rel="img/logo/logo.png" sizes="180x180" href="img/logo/logo.png">
+    <link rel="icon" href="Wedding Photo.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <meta name="theme-color" content="#fff" />
-    <link rel="canonical" href="https://pacy035.github.io/" />
+    <link rel="canonical" href="https://pacy035.github.io/projects.html" />
     <title>William Lacy's Projects</title>
 
     <link rel="stylesheet" href="./css/variables.css">
@@ -50,10 +50,20 @@
     <!--  Responsive css file  -->
     <link rel="stylesheet" href="./css/responsive.css">
 
+    <style>
+        .project-category { margin: 2.5rem 0 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--primary-color); font-family: var(--roboto); }
+        .project-card { display: flex; flex-direction: column; padding: 1.5rem; border-radius: 8px; background: #f8f9fa; }
+        .project-card h5 { font-family: var(--roboto); font-weight: 700; }
+        .project-card .tags { font-size: .85rem; color: var(--primary-color); margin-bottom: .5rem; }
+        .project-card .button { margin-top: auto; align-self: flex-start; }
+        .project-card .button:hover { text-decoration: none; }
+        .dark .project-card .tags { color: #c1c9fc; }
+        .dark .project-category { color: #fff; }
+        .empty-note { font-style: italic; }
+    </style>
 </head>
 
 <body id="body">
-    <button onclick="scrollToTop()" id="scroll-btn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
     <!--  ======================= Start Header Area ============================== -->
     <header class="header_area">
         <div class="main-menu">
@@ -70,10 +80,10 @@
                     <div class="mr-auto"></div>
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link" href="/">Home<span class="sr-only">(current)</span></a>
+                            <a class="nav-link" href="/">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="projects.html"><mark>Projects</mark></a>
+                            <a class="nav-link" href="projects.html"><mark>Projects</mark><span class="sr-only">(current)</span></a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="certificates.html"><mark>Certificates</mark></a>
@@ -89,40 +99,73 @@
 <!--  ======================= End Header Area ============================== -->
 
 <!--  ======================= Start Main Area ================================ -->
-<main class="site-main">
-    <!--  ========================= Start Projects Area ==========================  -->
+    <main class="site-main">
+        <!--  ========================= Start Projects Area ==========================  -->
         <section class="project-area" id="projects">
             <div class="container">
-                <div class="project-title pb-5">
-                    <h3 class="text-uppercase title-text" style="font-size: 35px;text-align: center;">Projects: Click Title of Highlighted Projects to Be Taken to Documentation Page</h3>
+                <div class="project-title pb-4 text-center">
+                    <h3 class="text-uppercase title-text" style="font-size: 35px;">Projects</h3>
+                    <p class="para">Projects with a <strong>View Documentation</strong> button have a full write-up.</p>
                 </div>
-                
-    
 
+                <!-- Cloud -->
+                <h4 class="project-category"><i class="fas fa-cloud mr-2"></i>Cloud</h4>
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="project-card theme-bg-light shadow-sm h-100">
+                            <h5>Azure Auto Scaling</h5>
+                            <p class="tags">Terraform · Azure DevOps · Key Vault</p>
+                            <p>Auto scaling Azure VM Scale Set to decrease downtime during updates.</p>
+                            <a class="button primary-button" href="./Projects/Azure%20Auto%20Scaling/">View Documentation</a>
+                        </div>
+                    </div>
+                </div>
 
-<h2>Cloud:</h2>
-<p>Auto Scaling Azure VM Set to Decrease Downtime During Updates</p>  <li class="button"><a class="button" href="https://pacy035.github.io/Projects/Azure%20Auto%20Scaling/"><mark>Azure Auto Scaling</mark></a> </li>
+                <!-- DevOps -->
+                <h4 class="project-category"><i class="fas fa-infinity mr-2"></i>DevOps</h4>
+                <p class="para empty-note">Coming soon.</p>
 
-                
-<h2>DevOps(To Be Uploaded):</h2>
-<h2>Cyber Security & Networking Projects:</h2>
+                <!-- Cyber Security & Networking -->
+                <h4 class="project-category"><i class="fas fa-shield-alt mr-2"></i>Cyber Security &amp; Networking</h4>
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="project-card theme-bg-light shadow-sm h-100">
+                            <h5>Home Network</h5>
+                            <p class="tags">Cisco Packet Tracer</p>
+                            <p>Built a home network in Cisco Packet Tracer supporting a PC, laptop, cable modem, and wireless router.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="project-card theme-bg-light shadow-sm h-100">
+                            <h5>SIEM Creation and Utilization</h5>
+                            <p class="tags">Elastic Cloud · Nmap</p>
+                            <p>Installed an Elastic agent on a virtual machine to monitor and alert on Nmap scans.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="project-card theme-bg-light shadow-sm h-100">
+                            <h5>TryHackMe Blue</h5>
+                            <p class="tags">Metasploit · MS17-010</p>
+                            <p>Exploited MS17-010 on a Windows machine with a stager payload, upgraded the shell to a Meterpreter session, and found all three flags.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="project-card theme-bg-light shadow-sm h-100">
+                            <h5>TryHackMe Brute Force Defense</h5>
+                            <p class="tags">Snort</p>
+                            <p>Stopped a brute force attack on a virtual machine by writing two Snort rules to block inbound and outbound traffic on the compromised ports.</p>
+                        </div>
+                    </div>
+                </div>
 
-  <summary><strong>Home Network</strong></summary>
-  <p>Using Cisco Packet Tracer I established a Home Network that supported the use of a PC, Laptop, Cable Modem, and a wireless router.</p>
-
-  <summary><strong>SIEM Creation and Utilization</strong></summary>
-  <p>Using Elastic Cloud I installed an agent onto my Virtual Machine to monitor and alert for NMAP Scans.</p>
-
-  <summary><strong>TryHackMe Blue Box</strong></summary>
-  <p>Using Metasploit I exploited the MS17 weakness of the Windows machine by delivering a stager payload that called back to my machine. This allowed me to run a script that escalated the shell session to a Meterpreter session to find all 3 flags placed in the Windows machine.</p>
- 
-  <summary><strong>TryHackMe Brute Force Attack</strong></summary>
-  <p>Using Snort, I stopped a brute force attack on my virtual machine by creating two snort rules to stop inbound and outbound traffic from compromised ports.</p>
-
-<h1>TryHackMe Profile</h1>
-<iframe src="https://tryhackme.com/api/v2/badges/public-profile?userPublicId=4006990" style="font-size: 35px;border:none;"></iframe>
+                <!-- TryHackMe -->
+                <h4 class="project-category"><i class="fas fa-user-secret mr-2"></i>TryHackMe Profile</h4>
+                <iframe src="https://tryhackme.com/api/v2/badges/public-profile?userPublicId=4006990"
+                    title="TryHackMe profile badge" style="border: none; width: 100%; max-width: 360px; height: 100px;"></iframe>
+            </div>
         </section>
-</main>
+        <!--  ========================= End Projects Area ==========================  -->
+    </main>
 <!--  ======================= End Main Area ================================ -->    
     <footer class="footer-area">
         <div class="container">
@@ -154,6 +197,8 @@
         </div>
     </footer>
 
+    <button onclick="scrollToTop()" id="scroll-btn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
+
     <script>
         let theme = localStorage.getItem("portfolio-theme") ? localStorage.getItem("portfolio-theme") : 'light';
         if (theme == 'light') {
@@ -175,13 +220,11 @@
         function toggleTheme() {
             if (theme == 'light') {
                 document.getElementById("body").classList.add('dark');
-                document.getElementsByClassName("theme-change-icon").src = "./img/light-theme-icon.png";
                 theme = 'dark';
                 localStorage.setItem("portfolio-theme", 'dark');
             }
             else {
                 document.getElementById("body").classList.remove('dark');
-                document.getElementsByClassName("theme-change-icon").src = "./img/dark-theme-icon.png";
                 theme = 'light';
                 localStorage.setItem("portfolio-theme", 'light');
             }
