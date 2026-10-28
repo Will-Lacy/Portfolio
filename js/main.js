@@ -25,6 +25,29 @@ $(document).ready(function () {
 
     $('.project-area .button-group #btn1').trigger('click');
 
+    // Isotope positions cards before images finish downloading, so cards
+    // overlap on a first (uncached) visit. Re-run the layout as each image
+    // loads, and once more when the whole page has loaded.
+    let $grid = $('.project-area .grid');
+    if ($grid.length) {
+        let relayoutTimer;
+        let relayout = function () {
+            clearTimeout(relayoutTimer);
+            relayoutTimer = setTimeout(function () {
+                if ($grid.data('isotope')) {
+                    $grid.isotope('layout');
+                }
+            }, 50);
+        };
+        $grid.find('img').each(function () {
+            if (!this.complete) {
+                $(this).one('load error', relayout);
+            }
+        });
+        $(window).on('load', relayout);
+        relayout();
+    }
+
     $('.project-area .grid .test-popup-link').magnificPopup({
         type: 'image',
         gallery: {
