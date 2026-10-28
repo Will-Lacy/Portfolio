@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="title" content="IAM Lab: Using Keycloak and Azure for MFA and RBAC | William Lacy">
+    <meta name="description"
+        content="A home-lab IAM project: Keycloak as the identity provider for Grafana (OIDC) and Wiki.js (SAML), federated with Microsoft Entra ID, with group-based RBAC and role-scoped MFA.">
+    <meta name="keywords"
+        content="Will Lacy, IAM, Keycloak, Entra ID, Azure, SSO, SAML, OIDC, MFA, RBAC">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Will Lacy">
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://will-lacy.github.io/Portfolio/Projects/Keycloak%20SSO/" />
+    <meta property="og:description"
+        content="Keycloak SSO for Grafana and Wiki.js, federated with Entra ID, with group-based RBAC and role-scoped MFA." />
+    <link rel="shortcut icon" href="https://will-lacy.github.io/Portfolio/Wedding Photo.ico" type="image/x-icon">
+    <link rel="icon" href="https://will-lacy.github.io/Portfolio/Wedding Photo.ico" type="image/x-icon">
+    <meta name="theme-color" content="#fff" />
+    <link rel="canonical" href="https://will-lacy.github.io/Portfolio/Projects/Keycloak%20SSO/" />
+    <title>IAM Lab: Keycloak and Azure for MFA and RBAC</title>
+
+    <link rel="stylesheet" href="https://will-lacy.github.io/Portfolio/css/variables.css">
+    <link rel="stylesheet" href="https://will-lacy.github.io/Portfolio/css/global.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kodchasan&display=swap" rel="stylesheet">
+    <link rel="manifest" href="https://will-lacy.github.io/Portfolio/manifest.json">
+
+    <!--  Bootstrap css file  -->
+    <link rel="stylesheet" href="https://will-lacy.github.io/Portfolio/css/bootstrap.min.css">
+    <!--  font awesome icons  -->
+    <link rel="stylesheet" href="https://will-lacy.github.io/Portfolio/css/all.min.css">
+    <!--  custom css file  -->
+    <link rel="stylesheet" href="https://will-lacy.github.io/Portfolio/css/style.css">
+    <!--  Responsive css file  -->
+    <link rel="stylesheet" href="https://will-lacy.github.io/Portfolio/css/responsive.css">
+
+    <style>
+        .doc { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+        .doc h2 { font-family: var(--roboto); font-weight: 700; font-size: 1.6rem; margin: 2.5rem 0 1rem;
+                  padding-bottom: .5rem; border-bottom: 2px solid var(--primary-color); }
+        .doc h3 { font-family: var(--roboto); font-weight: 700; font-size: 1.2rem; margin: 1.5rem 0 .75rem; }
+        .doc p, .doc li { line-height: 1.65; }
+        .doc .meta { color: #666; }
+        .doc table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .95rem; }
+        .doc th, .doc td { border: 1px solid #ddd; padding: .6rem .75rem; text-align: left; vertical-align: top; }
+        .doc th { background: #f1f3f9; }
+        .doc .table-wrap { overflow-x: auto; }
+        .doc pre { background: #f4f4f4; padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: .85rem; }
+        .doc code { font-size: .9em; }
+        .doc .callout { border-left: 4px solid var(--primary-color); background: #f1f3f9; padding: 1rem 1.25rem;
+                        border-radius: 0 6px 6px 0; margin: 1rem 0; }
+        .doc .flow { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: 1rem 0; }
+        .doc .flow span { background: #f1f3f9; border: 1px solid #ccd3ea; border-radius: 6px; padding: .4rem .75rem; }
+        .doc .flow i { color: var(--primary-color); }
+        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; margin: 1rem 0 2rem; }
+        .gallery figure { margin: 0; }
+        .gallery img { width: 100%; height: 180px; object-fit: cover; object-position: top; border-radius: 6px;
+                       border: 1px solid #ddd; transition: transform .2s ease; }
+        .gallery a:hover img { transform: scale(1.02); }
+        .gallery figcaption { font-size: .85rem; margin-top: .4rem; color: #555; }
+
+        .dark .doc, .dark .doc h2, .dark .doc h3 { color: #fcfcfc; }
+        .dark .doc .meta, .dark .gallery figcaption { color: #c1c9fc; }
+        .dark .doc th { background: #191a1d; color: #fcfcfc; }
+        .dark .doc td { color: #fcfcfc; border-color: #444; }
+        .dark .doc th { border-color: #444; }
+        .dark .doc pre { background: #191a1d; color: #e6e6e6; }
+        .dark .doc .callout, .dark .doc .flow span { background: #191a1d; border-color: #444; }
+        .dark .gallery img { border-color: #444; }
+    </style>
+</head>
+
+<body id="body">
+    <!--  ======================= Start Header Area ============================== -->
+    <header class="header_area">
+        <div class="main-menu">
+            <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="top-nav-fixed">
+                <a class="navbar-brand" href="https://will-lacy.github.io/Portfolio/" style="margin-left: 5%;">
+                    <img src="https://will-lacy.github.io/Portfolio/img/logo/logo.png" width="60px" alt="logo">
+                </a>
+                <input class="toggle mobile-show" type="checkbox" checked onclick="toggleTheme()">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span><i class="fas fa-stream"></i></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="mr-auto"></div>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://will-lacy.github.io/Portfolio/">Home</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" href="https://will-lacy.github.io/Portfolio/projects.html">Projects</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://will-lacy.github.io/Portfolio/certificates.html">Certificates</a>
+                        </li>
+                        <li class="nav-item">
+                            <input class="toggle desktop-show" type="checkbox" checked onclick="toggleTheme()">
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <!--  ======================= End Header Area ============================== -->
+
+    <main class="site-main">
+
+        <!--  ======================= Start Banner Area =======================  -->
+        <section class="site-banner">
+            <div class="container">
+                <div class="row">
+                    <div class="offset-lg-1 site-title">
+                        <h3 class="title-text text-uppercase">IAM Lab: Using Keycloak and Azure for MFA and RBAC</h3>
+                        <h4>One login for two apps over OIDC and SAML, federated with Microsoft Entra ID, with roles driven by groups and MFA required by role.</h4>
+                        <div class="social">
+                            <a target="_blank" rel="noreferrer" href="https://github.com/Will-Lacy" class="social-link offset-lg-1"><i class="fab fa-github"></i></a>
+                            <a target="_blank" rel="noreferrer" href="https://linkedin.com/in/willlacy" class="social-link offset-lg-1"><i class="fab fa-linkedin"></i></a>
+                            <a target="_blank" rel="noreferrer" href="https://will-lacy.github.io/Portfolio/Assets/Will_Lacy.pdf" class="social-link offset-lg-1"><i class="fas fa-file"></i></a>
+                            <a href="mailto:willplcy@gmail.com" class="social-link offset-lg-1"><i class="fas fa-envelope"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!--  ======================= End Banner Area =======================  -->
+
+        <section class="py-5">
+            <div class="doc">
+
+                <p class="meta"><strong>Author:</strong> William Lacy &nbsp;·&nbsp; <strong>Date:</strong> October 2026 &nbsp;·&nbsp; <strong>Environment:</strong> Home lab (Ubuntu VM, Docker) + Microsoft Entra ID tenant</p>
+
+                <h2>Summary</h2>
+                <p>I built a working single sign-on environment where Keycloak is the identity provider for two applications: Grafana over OpenID Connect and Wiki.js over SAML 2.0. Keycloak is federated with Microsoft Entra ID, so cloud users sign in with their Microsoft account and Entra MFA. Access in Grafana is decided entirely by Keycloak group membership, and a one-time password is required only for users holding an admin role.</p>
+                <p>Every control was tested with named test users, and each result is backed by a screenshot below.</p>
+
+                <h2>Architecture</h2>
+                <div class="flow">
+                    <span>Windows browser</span><i class="fas fa-arrow-right"></i>
+                    <span>Caddy (HTTPS)</span><i class="fas fa-arrow-right"></i>
+                    <span><strong>Keycloak</strong> (realm <code>lab</code>)</span><i class="fas fa-arrow-right"></i>
+                    <span>Grafana (OIDC) · Wiki.js (SAML)</span>
+                </div>
+                <div class="flow">
+                    <span><strong>Keycloak</strong></span><i class="fas fa-exchange-alt"></i>
+                    <span>Microsoft Entra ID (OIDC identity brokering)</span>
+                </div>
+                <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Component</th><th>Role</th><th>Protocol</th></tr></thead>
+                    <tbody>
+                        <tr><td>Keycloak 26 + PostgreSQL 16</td><td>Identity provider, users, groups, auth flows</td><td>OIDC / SAML issuer</td></tr>
+                        <tr><td>Grafana 11</td><td>Service provider, role mapped from groups claim</td><td>OIDC</td></tr>
+                        <tr><td>Wiki.js 2</td><td>Service provider, accounts created on first login</td><td>SAML 2.0</td></tr>
+                        <tr><td>Microsoft Entra ID</td><td>Upstream identity provider for cloud users, enforces MFA</td><td>OIDC</td></tr>
+                        <tr><td>Caddy 2</td><td>Reverse proxy, internal CA for <code>*.lab.local</code> TLS</td><td>HTTPS</td></tr>
+                    </tbody>
+                </table>
+                </div>
+                <p>All services run in Docker Compose on an Ubuntu VM. I used a hosts-file entry on the Windows host for the three <code>lab.local</code> hostnames, and imported Caddy's root CA into the Windows Trusted Root store so every redirect runs over trusted HTTPS.</p>
+
+                <h2>Identity Model</h2>
+                <div class="table-wrap">
+                <table>
+                    <thead><tr><th>User</th><th>Source</th><th>Groups</th><th>Grafana role</th><th>Keycloak OTP</th></tr></thead>
+                    <tbody>
+                        <tr><td>alice.admin</td><td>Keycloak</td><td>grafana-admins, wiki-users</td><td>Admin</td><td>Required (role <code>mfa-required</code>)</td></tr>
+                        <tr><td>bob.editor</td><td>Keycloak</td><td>grafana-editors, wiki-users</td><td>Editor</td><td>Not required</td></tr>
+                        <tr><td>carol.viewer</td><td>Keycloak</td><td>wiki-users</td><td>Viewer</td><td>Not required</td></tr>
+                        <tr><td>dana (Entra)</td><td>Entra ID via broker</td><td>grafana-editors (hardcoded mapper)</td><td>Editor</td><td>Entra MFA instead</td></tr>
+                    </tbody>
+                </table>
+                </div>
+
+                <h2>Controls Demonstrated</h2>
+                <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Control</th><th>How it is implemented</th><th>Result</th></tr></thead>
+                    <tbody>
+                        <tr><td>Single sign-on</td><td>One Keycloak session shared by both apps</td><td>Bob signed into Wiki.js, then opened Grafana without re-entering credentials</td></tr>
+                        <tr><td>RBAC from groups</td><td>Keycloak <code>groups</code> claim → Grafana <code>role_attribute_path</code> with strict mode</td><td>Admin, Editor and Viewer assigned correctly to alice, bob and carol</td></tr>
+                        <tr><td>Least privilege in Wiki.js</td><td>New SAML users land in <code>Guests</code></td><td>Bob authenticated, but was denied page creation and administration</td></tr>
+                        <tr><td>Federation</td><td>Entra ID added as an OIDC identity provider; Hardcoded Group mapper with sync mode Force</td><td>Entra user Dana signed in through Microsoft and landed as Editor</td></tr>
+                        <tr><td>Role-scoped MFA</td><td>Copied browser flow; conditional OTP gated by <code>Condition - user role</code> = <code>mfa-required</code>, assigned to <code>grafana-admins</code></td><td>Alice is forced to enroll and use OTP; Bob signs in with a password only</td></tr>
+                        <tr><td>Upstream MFA</td><td>Entra Security Defaults</td><td>Dana completes Microsoft Authenticator MFA before Keycloak issues a session</td></tr>
+                        <tr><td>Leaver / disable</td><td>User disabled in Keycloak</td><td>Carol blocked: "Account is disabled, contact your administrator."</td></tr>
+                        <tr><td>Session revocation</td><td>Keycloak Sessions → Sign out</td><td>Keycloak session ended; account console demanded a new login</td></tr>
+                        <tr><td>Audit logging</td><td>User and admin events enabled for the realm</td><td><code>LOGIN_ERROR</code> / <code>invalid_user_credentials</code> recorded for a failed attempt</td></tr>
+                    </tbody>
+                </table>
+                </div>
+
+                <h2>Configuration</h2>
+                <p>Secrets are kept in an <code>.env</code> file and shown here as placeholders.</p>
+
+                <h3>docker-compose.yml</h3>
+<pre><code>services:
+  caddy:
+    image: caddy:2
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: ${KC_DB_PASSWORD}
+    volumes: [pg_data:/var/lib/postgresql/data]
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0
+    command: start
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
+      KC_HOSTNAME: https://sso.lab.local
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
+      KC_HTTP_ENABLED: "true"
+      KC_PROXY_HEADERS: xforwarded
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD}
+    depends_on: [postgres]
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    env_file: grafana.env
+    volumes: [grafana_data:/var/lib/grafana]
+
+  wiki:
+    image: requarks/wiki:2
+    environment:
+      DB_TYPE: sqlite
+      DB_FILEPATH: /wiki/data/wiki.sqlite
+    volumes: [wiki_data:/wiki/data]
+
+volumes:
+  caddy_data:
+  pg_data:
+  grafana_data:
+  wiki_data:</code></pre>
+
+                <h3>Caddyfile</h3>
+<pre><code>sso.lab.local {
+  tls internal
+  reverse_proxy keycloak:8080
+}
+grafana.lab.local {
+  tls internal
+  reverse_proxy grafana:3000
+}
+wiki.lab.local {
+  tls internal
+  reverse_proxy wiki:3000
+}</code></pre>
+
+                <h3>grafana.env</h3>
+<pre><code>GF_SERVER_ROOT_URL=https://grafana.lab.local
+GF_AUTH_GENERIC_OAUTH_ENABLED=true
+GF_AUTH_GENERIC_OAUTH_NAME=Keycloak
+GF_AUTH_GENERIC_OAUTH_CLIENT_ID=grafana
+GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET=&lt;client-secret&gt;
+GF_AUTH_GENERIC_OAUTH_SCOPES=openid email profile groups
+GF_AUTH_GENERIC_OAUTH_AUTH_URL=https://sso.lab.local/realms/lab/protocol/openid-connect/auth
+GF_AUTH_GENERIC_OAUTH_TOKEN_URL=http://keycloak:8080/realms/lab/protocol/openid-connect/token
+GF_AUTH_GENERIC_OAUTH_API_URL=http://keycloak:8080/realms/lab/protocol/openid-connect/userinfo
+GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH=contains(groups[*], 'grafana-admins') &amp;&amp; 'Admin' || contains(groups[*], 'grafana-editors') &amp;&amp; 'Editor' || 'Viewer'
+GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_STRICT=true</code></pre>
+                <p>The browser is redirected to the public <code>sso.lab.local</code> URL, while Grafana's back-channel token and userinfo calls go straight to Keycloak over the Docker network.</p>
+
+                <h3>Key Keycloak settings</h3>
+                <ul>
+                    <li><strong>Grafana client:</strong> confidential, standard flow only (direct access grants off), exact redirect URI, with a <code>groups</code> client scope (Group Membership mapper, full path off) added as Default.</li>
+                    <li><strong>Wiki.js client:</strong> SAML, Client ID equal to the Wiki.js issuer, Name ID format <code>email</code> (forced), documents and assertions signed with RSA_SHA256, client signature not required, and User Property mappers for <code>email</code> and <code>firstName</code>.</li>
+                    <li><strong>Entra identity provider:</strong> alias <code>entra</code>, configured from the tenant's v2.0 discovery endpoint, client secret sent as post, scopes <code>openid profile email</code>, Trust Email on.</li>
+                    <li><strong>Browser flow <code>browser-admin-mfa</code>:</strong> a copy of the built-in flow, bound as the realm's browser flow. The conditional OTP sub-flow evaluates <code>Condition - user role</code> first, then <code>OTP Form</code>, with "user configured" disabled.</li>
+                </ul>
+
+                <h2>Problems and Fixes</h2>
+                <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Problem</th><th>Cause</th><th>Fix</th></tr></thead>
+                    <tbody>
+                        <tr><td>Keycloak "Invalid Request" on Wiki.js login; log showed <code>PL00074: Invalid byte 1 of 1-byte UTF-8 sequence</code></td><td>Wiki.js compresses the AuthnRequest, but it was being sent with HTTP-POST binding, which Keycloak expects uncompressed</td><td>Switched the Wiki.js Request Binding to HTTP-Redirect, which expects compressed requests</td></tr>
+                        <tr><td>Identity provider redirect URI showed <code>/realms/master/</code></td><td>The provider was being created in the admin realm</td><td>Cancelled, switched to the <code>lab</code> realm and recreated it, keeping the admin realm free of app configuration</td></tr>
+                        <tr><td><code>permission denied … docker.sock</code></td><td>User not in the <code>docker</code> group</td><td>Added the user to the group with <code>usermod -aG docker</code> and started a new login session</td></tr>
+                        <tr><td>Entra portal error AADSTS50058 (silent sign-in failed)</td><td>Portal session cookies blocked or mixed up between private windows and accounts</td><td>Kept the admin portal in a normal window and used private windows only for test users</td></tr>
+                        <tr><td>Wiki.js login broke after changing its Digest Algorithm</td><td>Not fully confirmed. Wiki.js has no private key and signs nothing, so the setting adds no security here</td><td>Reverted to the working value. Assertion integrity comes from Keycloak's RSA_SHA256 signatures</td></tr>
+                    </tbody>
+                </table>
+                </div>
+
+                <h2>Findings</h2>
+                <div class="callout">
+                    <p class="mb-2"><strong>Revoking at the IdP doesn't end app sessions.</strong> After Bob's Keycloak session was signed out, his existing Grafana session kept working, while any new SSO login required credentials again. In production this needs short app session lifetimes or OIDC back-channel logout so that revocation takes effect immediately.</p>
+                    <p class="mb-0"><strong>Federated logins skip the realm browser flow.</strong> Entra users never hit the Keycloak OTP step; their MFA is enforced upstream by Entra. That is the intended design here, but it means MFA policy must be checked at every identity provider, not only in Keycloak.</p>
+                </div>
+
+                <h2>Next Steps</h2>
+                <ul>
+                    <li>Replace the temporary bootstrap admin with a named permanent admin account in the master realm.</li>
+                    <li>Turn on OIDC back-channel logout for Grafana and shorten its session lifetime.</li>
+                    <li>Map Entra security groups to Keycloak groups instead of hardcoding every federated user as Editor.</li>
+                    <li>Forward Keycloak events to my Wazuh manager and alert on repeated <code>LOGIN_ERROR</code> and on admin role changes.</li>
+                    <li>Manage realms, clients and flows as code with the Terraform Keycloak provider.</li>
+                    <li>Add WebAuthn (passkeys) as a phishing-resistant second factor for admins.</li>
+                </ul>
+
+                <h2>Evidence</h2>
+
+                <h3>Group-based access in Grafana (OIDC)</h3>
+                <div class="gallery">
+                    <figure><a href="Images/grafana-role-admin.png" target="_blank"><img src="Images/grafana-role-admin.png" alt="Alice's Grafana profile with Admin role" loading="lazy"></a><figcaption>alice.admin → Admin</figcaption></figure>
+                    <figure><a href="Images/grafana-role-editor.png" target="_blank"><img src="Images/grafana-role-editor.png" alt="Bob's Grafana profile with Editor role" loading="lazy"></a><figcaption>bob.editor → Editor</figcaption></figure>
+                    <figure><a href="Images/grafana-role-viewer.png" target="_blank"><img src="Images/grafana-role-viewer.png" alt="Carol's Grafana profile with Viewer role" loading="lazy"></a><figcaption>carol.viewer → Viewer</figcaption></figure>
+                </div>
+
+                <h3>Wiki.js over SAML</h3>
+                <div class="gallery">
+                    <figure><a href="Images/wiki-saml-client-general.png" target="_blank"><img src="Images/wiki-saml-client-general.png" alt="Keycloak SAML client general settings" loading="lazy"></a><figcaption>Keycloak SAML client: ID and redirect URI</figcaption></figure>
+                    <figure><a href="Images/wiki-saml-client-capabilities.png" target="_blank"><img src="Images/wiki-saml-client-capabilities.png" alt="Keycloak SAML capabilities" loading="lazy"></a><figcaption>Email Name ID, forced POST binding</figcaption></figure>
+                    <figure><a href="Images/wiki-saml-client-signature.png" target="_blank"><img src="Images/wiki-saml-client-signature.png" alt="Keycloak SAML signature settings" loading="lazy"></a><figcaption>Signed documents and assertions, RSA_SHA256</figcaption></figure>
+                    <figure><a href="Images/wiki-saml-strategy-1-endpoint.png" target="_blank"><img src="Images/wiki-saml-strategy-1-endpoint.png" alt="Wiki.js SAML entry point and issuer" loading="lazy"></a><figcaption>Wiki.js strategy: entry point, issuer, audience</figcaption></figure>
+                    <figure><a href="Images/wiki-saml-strategy-2-signing.png" target="_blank"><img src="Images/wiki-saml-strategy-2-signing.png" alt="Wiki.js SAML signing settings" loading="lazy"></a><figcaption>Wiki.js strategy: algorithms and Name ID format</figcaption></figure>
+                    <figure><a href="Images/wiki-saml-strategy-3-binding-mapping.png" target="_blank"><img src="Images/wiki-saml-strategy-3-binding-mapping.png" alt="Wiki.js SAML binding and attribute mapping" loading="lazy"></a><figcaption>HTTP-Redirect binding and attribute mapping</figcaption></figure>
+                    <figure><a href="Images/wiki-saml-strategy-4-registration.png" target="_blank"><img src="Images/wiki-saml-strategy-4-registration.png" alt="Wiki.js self-registration to Guests" loading="lazy"></a><figcaption>Self-registration into Guests</figcaption></figure>
+                    <figure><a href="Images/wiki-login-bob.png" target="_blank"><img src="Images/wiki-login-bob.png" alt="Bob's Wiki.js profile with Keycloak provider" loading="lazy"></a><figcaption>Bob signed in via Keycloak</figcaption></figure>
+                    <figure><a href="Images/wiki-bob-unauthorized.png" target="_blank"><img src="Images/wiki-bob-unauthorized.png" alt="Wiki.js Unauthorized page for Bob" loading="lazy"></a><figcaption>Least privilege: Guests denied admin</figcaption></figure>
+                    <figure><a href="Images/sso-no-reprompt.png" target="_blank"><img src="Images/sso-no-reprompt.png" alt="Bob in Grafana after Wiki.js login" loading="lazy"></a><figcaption>SSO: Grafana opened without re-entering credentials</figcaption></figure>
+                </div>
+
+                <h3>Entra ID federation</h3>
+                <div class="gallery">
+                    <figure><a href="Images/entra-app-registration.png" target="_blank"><img src="Images/entra-app-registration.png" alt="Entra app registration overview" loading="lazy"></a><figcaption>Single-tenant app registration</figcaption></figure>
+                    <figure><a href="Images/entra-redirect-uri.png" target="_blank"><img src="Images/entra-redirect-uri.png" alt="Entra redirect URI" loading="lazy"></a><figcaption>Redirect URI to the Keycloak broker endpoint</figcaption></figure>
+                    <figure><a href="Images/keycloak-entra-idp.png" target="_blank"><img src="Images/keycloak-entra-idp.png" alt="Keycloak Entra identity provider" loading="lazy"></a><figcaption>Keycloak identity provider (alias entra)</figcaption></figure>
+                    <figure><a href="Images/keycloak-entra-mapper.png" target="_blank"><img src="Images/keycloak-entra-mapper.png" alt="Keycloak IdP mappers list" loading="lazy"></a><figcaption>Hardcoded Group mapper</figcaption></figure>
+                    <figure><a href="Images/keycloak-entra-mapper-detail.png" target="_blank"><img src="Images/keycloak-entra-mapper-detail.png" alt="Mapper detail targeting grafana-editors" loading="lazy"></a><figcaption>Sync mode Force → /grafana-editors</figcaption></figure>
+                    <figure><a href="Images/keycloak-login-microsoft.png" target="_blank"><img src="Images/keycloak-login-microsoft.png" alt="Keycloak login page with Microsoft option" loading="lazy"></a><figcaption>Login page with the Microsoft option</figcaption></figure>
+                    <figure><a href="Images/grafana-role-entra-editor.png" target="_blank"><img src="Images/grafana-role-entra-editor.png" alt="Entra user Dana in Grafana as Editor" loading="lazy"></a><figcaption>Entra user Dana → Editor</figcaption></figure>
+                </div>
+
+                <h3>Role-scoped MFA</h3>
+                <div class="gallery">
+                    <figure><a href="Images/keycloak-mfa-role.png" target="_blank"><img src="Images/keycloak-mfa-role.png" alt="mfa-required role on grafana-admins" loading="lazy"></a><figcaption><code>mfa-required</code> on grafana-admins</figcaption></figure>
+                    <figure><a href="Images/keycloak-mfa-flow.png" target="_blank"><img src="Images/keycloak-mfa-flow.png" alt="Conditional OTP flow gated by user role" loading="lazy"></a><figcaption>Conditional OTP gated by role</figcaption></figure>
+                    <figure><a href="Images/keycloak-otp-setup.png" target="_blank"><img src="Images/keycloak-otp-setup.png" alt="OTP enrollment for Alice, QR blurred" loading="lazy"></a><figcaption>Alice forced to enroll OTP (QR blurred)</figcaption></figure>
+                    <figure><a href="Images/keycloak-otp-prompt.png" target="_blank"><img src="Images/keycloak-otp-prompt.png" alt="OTP prompt on later login" loading="lazy"></a><figcaption>OTP required on later logins</figcaption></figure>
+                </div>
+
+                <h3>Lifecycle and audit</h3>
+                <div class="gallery">
+                    <figure><a href="Images/test-disabled-user-config.png" target="_blank"><img src="Images/test-disabled-user-config.png" alt="Carol disabled in Keycloak" loading="lazy"></a><figcaption>carol.viewer disabled</figcaption></figure>
+                    <figure><a href="Images/test-disabled-user.png" target="_blank"><img src="Images/test-disabled-user.png" alt="Account is disabled message" loading="lazy"></a><figcaption>Login blocked for a disabled user</figcaption></figure>
+                    <figure><a href="Images/test-session-list.png" target="_blank"><img src="Images/test-session-list.png" alt="Bob's Keycloak sessions" loading="lazy"></a><figcaption>Revoking Bob's sessions</figcaption></figure>
+                    <figure><a href="Images/test-session-revoked.png" target="_blank"><img src="Images/test-session-revoked.png" alt="Grafana session persists while Keycloak requires login" loading="lazy"></a><figcaption>App session persists; IdP session gone</figcaption></figure>
+                    <figure><a href="Images/test-events-log.png" target="_blank"><img src="Images/test-events-log.png" alt="LOGIN_ERROR event for Alice" loading="lazy"></a><figcaption>Failed login recorded in Events</figcaption></figure>
+                </div>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer-area">
+        <div class="container">
+            <div class="">
+                <div class="site-logo text-center py-4">
+                    <img src="https://will-lacy.github.io/Portfolio/img/logo/logo.png" width="60px" alt="logo">
+                </div>
+                <div class="text-center">
+                    <h5 class="text-uppercase">Socials below:</h5>
+                    <a target="_blank" rel="noreferrer" href="https://github.com/Will-Lacy" class="social social-link"><i class="fab fa-github"></i></a>
+                    <a target="_blank" rel="noreferrer" href="https://www.linkedin.com/in/willlacy/" class="social social-link"><i class="fab fa-linkedin"></i></a>
+                    <a href="mailto:willplcy@gmail.com" class="social social-link"><i class="fas fa-envelope"></i></a>
+                </div>
+                <div class="copyrights text-center">
+                    <p class="para">|| Made with a fork of a Github Repository, linked below: ||</p>
+                    <p>
+                        <a class="github-button" href="https://github.com/alok722/alokraj.tech/fork"
+                            data-color-scheme="no-preference: dark; light: dark; dark: light;"
+                            data-icon="octicon-repo-forked" data-size="large" data-show-count="true"
+                            aria-label="Fork alok722/alokraj.tech on GitHub">Fork</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <button onclick="scrollToTop()" id="scroll-btn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
+
+    <script>
+        let theme = localStorage.getItem("portfolio-theme") ? localStorage.getItem("portfolio-theme") : 'light';
+        if (theme == 'light') {
+            document.getElementsByClassName('toggle')[0].checked = true;
+            document.getElementsByClassName('toggle')[1].checked = true;
+        } else {
+            document.getElementsByClassName('toggle')[0].checked = false;
+            document.getElementsByClassName('toggle')[1].checked = false;
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            if (theme == 'light') {
+                document.getElementById("body").classList.remove('dark');
+            } else {
+                document.getElementById("body").classList.add('dark');
+            }
+        });
+
+        function toggleTheme() {
+            if (theme == 'light') {
+                document.getElementById("body").classList.add('dark');
+                theme = 'dark';
+                localStorage.setItem("portfolio-theme", 'dark');
+            } else {
+                document.getElementById("body").classList.remove('dark');
+                theme = 'light';
+                localStorage.setItem("portfolio-theme", 'light');
+            }
+        }
+    </script>
+
+    <script defer src="https://will-lacy.github.io/Portfolio/js/jquery.3.4.1.js"></script>
+    <script defer src="https://will-lacy.github.io/Portfolio/js/bootstrap.min.js"></script>
+    <script defer src="https://will-lacy.github.io/Portfolio/js/all.min.js"></script>
+    <script defer src="https://will-lacy.github.io/Portfolio/js/main.js"></script>
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+
+</html>
