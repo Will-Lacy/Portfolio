@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="title" content="Self-Hosted Home Server (ZimaOS) | William Lacy">
+    <meta name="description"
+        content="A self-hosted home server on ZimaOS: zero-trust remote access with NetBird, HTTPS through Nginx Proxy Manager with a private CA, and hardened Vaultwarden, Actual Budget and SMB storage.">
+    <meta name="keywords"
+        content="Will Lacy, home server, ZimaOS, NetBird, WireGuard, Nginx Proxy Manager, Vaultwarden, PKI, system administration, IAM">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Will Lacy">
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://will-lacy.github.io/Portfolio/Projects/Home%20Server/" />
+    <meta property="og:description"
+        content="A self-hosted home server on ZimaOS: zero-trust remote access with NetBird, HTTPS through Nginx Proxy Manager with a private CA, and hardened Vaultwarden, Actual Budget and SMB storage." />
+    <link rel="shortcut icon" href="https://will-lacy.github.io/Portfolio/Wedding Photo.ico" type="image/x-icon">
+    <link rel="icon" href="https://will-lacy.github.io/Portfolio/Wedding Photo.ico" type="image/x-icon">
+    <meta name="theme-color" content="#fff" />
+    <link rel="canonical" href="https://will-lacy.github.io/Portfolio/Projects/Home%20Server/" />
+    <title>Self-Hosted Home Server (ZimaOS)</title>
+
+    <link rel="stylesheet" href="https://will-lacy.github.io/Portfolio/css/variables.css">
+    <link rel="stylesheet" href="https://will-lacy.github.io/Portfolio/css/global.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kodchasan&display=swap" rel="stylesheet">
+    <link rel="manifest" href="https://will-lacy.github.io/Portfolio/manifest.json">
+
+    <!--  Bootstrap css file  -->
+    <link rel="stylesheet" href="https://will-lacy.github.io/Portfolio/css/bootstrap.min.css">
+    <!--  font awesome icons  -->
+    <link rel="stylesheet" href="https://will-lacy.github.io/Portfolio/css/all.min.css">
+    <!--  custom css file  -->
+    <link rel="stylesheet" href="https://will-lacy.github.io/Portfolio/css/style.css">
+    <!--  Responsive css file  -->
+    <link rel="stylesheet" href="https://will-lacy.github.io/Portfolio/css/responsive.css">
+
+    <style>
+        .doc { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+        .doc h2 { font-family: var(--roboto); font-weight: 700; font-size: 1.6rem; margin: 2.5rem 0 1rem;
+                  padding-bottom: .5rem; border-bottom: 2px solid var(--primary-color); }
+        .doc h3 { font-family: var(--roboto); font-weight: 700; font-size: 1.2rem; margin: 1.5rem 0 .75rem; }
+        .doc p, .doc li { line-height: 1.65; }
+        .doc .meta { color: #666; }
+        .doc table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .95rem; }
+        .doc th, .doc td { border: 1px solid #ddd; padding: .6rem .75rem; text-align: left; vertical-align: top; }
+        .doc th { background: #f1f3f9; }
+        .doc .table-wrap { overflow-x: auto; }
+        .doc pre { background: #f4f4f4; padding: 1rem; border-radius: 6px; overflow-x: auto; font-size: .85rem; }
+        .doc code { font-size: .9em; }
+        .doc .callout { border-left: 4px solid var(--primary-color); background: #f1f3f9; padding: 1rem 1.25rem;
+                        border-radius: 0 6px 6px 0; margin: 1rem 0; }
+        .doc .flow { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: 1rem 0; }
+        .doc .flow span { background: #f1f3f9; border: 1px solid #ccd3ea; border-radius: 6px; padding: .4rem .75rem; }
+        .doc .flow i { color: var(--primary-color); }
+        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.25rem; margin: 1rem 0 2rem; }
+        .gallery figure { margin: 0; }
+        .gallery img { width: 100%; height: 180px; object-fit: cover; object-position: top; border-radius: 6px;
+                       border: 1px solid #ddd; transition: transform .2s ease; }
+        .gallery a:hover img { transform: scale(1.02); }
+        .gallery figcaption { font-size: .85rem; margin-top: .4rem; color: #555; }
+
+        .dark .doc, .dark .doc h2, .dark .doc h3 { color: #fcfcfc; }
+        .dark .doc .meta, .dark .gallery figcaption { color: #c1c9fc; }
+        .dark .doc th { background: #191a1d; color: #fcfcfc; }
+        .dark .doc td { color: #fcfcfc; border-color: #444; }
+        .dark .doc th { border-color: #444; }
+        .dark .doc pre { background: #191a1d; color: #e6e6e6; }
+        .dark .doc .callout, .dark .doc .flow span { background: #191a1d; border-color: #444; }
+        .dark .gallery img { border-color: #444; }
+    </style>
+</head>
+
+<body id="body">
+    <!--  ======================= Start Header Area ============================== -->
+    <header class="header_area">
+        <div class="main-menu">
+            <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="top-nav-fixed">
+                <a class="navbar-brand" href="https://will-lacy.github.io/Portfolio/" style="margin-left: 5%;">
+                    <img src="https://will-lacy.github.io/Portfolio/img/logo/logo.png" width="60px" alt="logo">
+                </a>
+                <input class="toggle mobile-show" type="checkbox" checked onclick="toggleTheme()">
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span><i class="fas fa-stream"></i></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <div class="mr-auto"></div>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://will-lacy.github.io/Portfolio/">Home</a>
+                        </li>
+                        <li class="nav-item active">
+                            <a class="nav-link" href="https://will-lacy.github.io/Portfolio/projects.html">Projects</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="https://will-lacy.github.io/Portfolio/certificates.html">Certificates</a>
+                        </li>
+                        <li class="nav-item">
+                            <input class="toggle desktop-show" type="checkbox" checked onclick="toggleTheme()">
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </div>
+    </header>
+    <!--  ======================= End Header Area ============================== -->
+
+    <main class="site-main">
+
+        <!--  ======================= Start Banner Area =======================  -->
+        <section class="site-banner">
+            <div class="container">
+                <div class="row">
+                    <div class="offset-lg-1 site-title">
+                        <h3 class="title-text text-uppercase">Self-Hosted Home Server (ZimaOS)</h3>
+                        <h4>A mini PC turned home server: zero-trust remote access, HTTPS from my own certificate authority, and self-hosted apps with nothing exposed to the internet.</h4>
+                        <div class="social">
+                            <a target="_blank" rel="noreferrer" href="https://github.com/Will-Lacy" class="social-link offset-lg-1"><i class="fab fa-github"></i></a>
+                            <a target="_blank" rel="noreferrer" href="https://linkedin.com/in/willlacy" class="social-link offset-lg-1"><i class="fab fa-linkedin"></i></a>
+                            <a href="mailto:willplcy@gmail.com" class="social-link offset-lg-1"><i class="fas fa-envelope"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!--  ======================= End Banner Area =======================  -->
+
+        <section class="py-5">
+            <div class="doc">
+
+                <p class="meta"><strong>Author:</strong> William Lacy &nbsp;·&nbsp; <strong>Date:</strong> November 2026 &nbsp;·&nbsp; <strong>Environment:</strong> GMKtec mini PC running ZimaOS, NetBird Cloud, Windows 11 and iPhone clients</p>
+
+                <h2>Summary</h2>
+                <p>I turned a mini PC into a self-hosted home server that runs my password manager, a budgeting app and network file storage. I replaced the existing Kali Linux install with ZimaOS, put every web app behind a reverse proxy with certificates from my own private certificate authority, and replaced the vendor's remote-access feature with a zero-trust VPN that requires sign-in and approval for every device.</p>
+                <p>Nothing on the server is exposed to the internet. No ports are forwarded on the router, and remote access only works from devices I have enrolled and approved.</p>
+
+                <h2>Architecture</h2>
+                <div class="flow">
+                    <span>Approved device (PC, laptop, iPhone)</span><i class="fas fa-arrow-right"></i>
+                    <span>NetBird (WireGuard tunnel) or home LAN</span><i class="fas fa-arrow-right"></i>
+                    <span><strong>Nginx Proxy Manager</strong> (HTTPS, private CA)</span><i class="fas fa-arrow-right"></i>
+                    <span>ZimaOS dashboard · Vaultwarden · Actual Budget</span>
+                </div>
+                <div class="flow">
+                    <span>Windows PC</span><i class="fas fa-arrow-right"></i>
+                    <span>SMB file share</span><i class="fas fa-arrow-right"></i>
+                    <span><strong>2 TB HDD</strong> (NAS storage)</span>
+                </div>
+                <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Component</th><th>Role</th></tr></thead>
+                    <tbody>
+                        <tr><td>GMKtec G3 Ultra (Pentium Gold 7505, 16 GB RAM, 512 GB SSD)</td><td>Server hardware, low power, always on</td></tr>
+                        <tr><td>ZimaOS</td><td>Host OS; runs every service as a Docker container from its App Store</td></tr>
+                        <tr><td>2 TB HDD (exFAT)</td><td>Repurposed drive from an old PC, shared over SMB as network storage</td></tr>
+                        <tr><td>NetBird Cloud</td><td>WireGuard-based mesh VPN with identity sign-in, peer approval and access policies</td></tr>
+                        <tr><td>Nginx Proxy Manager</td><td>Reverse proxy: TLS termination, hostnames, access lists, exploit blocking</td></tr>
+                        <tr><td>mkcert</td><td>Private certificate authority for internal TLS certificates</td></tr>
+                        <tr><td>Vaultwarden</td><td>Self-hosted, Bitwarden-compatible password manager</td></tr>
+                        <tr><td>Actual Budget</td><td>Self-hosted budgeting app</td></tr>
+                    </tbody>
+                </table>
+                </div>
+
+                <h2>Build</h2>
+
+                <h3>1. Operating system</h3>
+                <p>I flashed the ZimaOS installer to a USB drive, booted the mini PC from it, and installed to the internal SSD. The installer wipes the target disk, which removed the previous Kali Linux install completely. The server was given a fixed LAN address (<code>192.xxx.x.xxx</code>) and is administered from the ZimaOS web dashboard.</p>
+
+                <h3>2. Remote access: ZeroTier replaced with NetBird</h3>
+                <p>ZimaOS ships a Remote Access feature built on a <strong>public</strong> ZeroTier network. On a public network, anyone who knows the network ID is authorized automatically and can't be removed, so the only control left is the dashboard password. I replaced it with NetBird.</p>
+                <ul>
+                    <li><strong>Enrollment:</strong> the server joined with a single-use, non-ephemeral setup key, which I revoked once it was enrolled. Clients sign in through an identity provider account protected by MFA.</li>
+                    <li><strong>Peer approval:</strong> new devices can't connect until I approve them in the dashboard.</li>
+                    <li><strong>Least-privilege policy:</strong> two groups, <code>servers</code> and <code>my-devices</code>, with one policy allowing <code>my-devices → servers</code>. The default allow-all policy is deleted, so the server can't initiate connections to my devices and unapproved peers reach nothing.</li>
+                    <li><strong>Network route:</strong> the server acts as the routing peer for the home subnet, so remote devices can reach LAN addresses through the tunnel.</li>
+                    <li><strong>Decommissioning:</strong> after NetBird was confirmed working from cellular, I turned off ZimaOS Remote Access and uninstalled the ZeroTier and Zima clients from my PC.</li>
+                </ul>
+                <p>Normal internet traffic stays split-tunneled; only traffic to the server goes through the encrypted tunnel, peer-to-peer where possible and through an end-to-end encrypted relay otherwise.</p>
+
+                <h3>3. HTTPS with a private certificate authority</h3>
+                <p>I didn't want to buy a domain or expose anything publicly, so I ran my own CA with mkcert on my Windows PC:</p>
+                <ul>
+                    <li>Issued a wildcard certificate for the internal lab domain and a separate certificate for the server's VPN hostname, and uploaded both to Nginx Proxy Manager as custom certificates.</li>
+                    <li>Installed the root CA certificate on my PC and iPhone (with full trust enabled on iOS). The CA's private key never leaves the PC.</li>
+                    <li>Left the ZimaOS dashboard on plain HTTP internally and handled all TLS in the proxy, which avoids a port conflict between ZimaOS's gateway and the proxy on 443.</li>
+                </ul>
+                <p>Each app has its own proxy host with <strong>Force SSL</strong>, <strong>HTTP/2</strong>, <strong>Block Common Exploits</strong> and WebSocket support enabled, and <strong>Access Lists</strong> restrict who can reach them.</p>
+
+                <h3>4. Vaultwarden (password manager)</h3>
+                <p>Vaultwarden's web vault only runs in a secure context, so it sits behind the proxy on the VPN hostname (<code>xxx.netbird.xxx</code>). Configuration:</p>
+<pre><code>DOMAIN=https://xxx.netbird.xxx
+SIGNUPS_ALLOWED=false        # set after creating my account
+INVITATIONS_ALLOWED=false
+ADMIN_TOKEN=&lt;admin-token&gt;</code></pre>
+                <ul>
+                    <li>Two-step login is enabled on my vault account.</li>
+                    <li>The container's <code>/data</code> folder is backed up off the server.</li>
+                    <li>I migrated my vault from Proton Pass and use the official Bitwarden clients (browser extension and iPhone) pointed at the self-hosted server.</li>
+                </ul>
+
+                <h3>5. Actual Budget</h3>
+                <p>Actual Budget's in-browser database uses <code>SharedArrayBuffer</code>, which browsers only allow on HTTPS pages. I gave it its own proxy host on the wildcard certificate so it loads over trusted HTTPS.</p>
+
+                <h3>6. Name resolution with the VPN off</h3>
+                <p>The VPN hostname only resolves while NetBird is connected. So the apps keep working on my home PC with the VPN off, I added hosts-file entries mapping the app hostnames to the server's LAN address. With the VPN on, the hosts file still wins and traffic stays on the LAN.</p>
+<pre><code>192.xxx.x.xxx   xxx.netbird.xxx
+192.xxx.x.xxx   &lt;app&gt;.lab.xxx</code></pre>
+
+                <h3>7. Network storage</h3>
+                <p>I repurposed a 2 TB HDD from an old PC, shared it over SMB from ZimaOS, and mapped it as a network drive in Windows. SMB uses port 445 directly, so file access doesn't go through the web proxy.</p>
+
+                <h2>Security Controls</h2>
+                <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Risk</th><th>Control</th></tr></thead>
+                    <tbody>
+                        <tr><td>Internet exposure</td><td>No port forwarding; remote access only through NetBird</td></tr>
+                        <tr><td>Unauthorized remote devices</td><td>Identity sign-in with MFA, peer approval, revocable peers; vendor ZeroTier access removed</td></tr>
+                        <tr><td>Lateral movement from the server</td><td>One-way policy <code>my-devices → servers</code>; default allow-all deleted</td></tr>
+                        <tr><td>Credentials in cleartext on the LAN</td><td>All web apps served over HTTPS via the proxy and private CA</td></tr>
+                        <tr><td>Untrusted clients reaching apps</td><td>Nginx Proxy Manager Access Lists</td></tr>
+                        <tr><td>Common web attacks</td><td>Block Common Exploits on every proxy host</td></tr>
+                        <tr><td>Rogue vault accounts</td><td><code>SIGNUPS_ALLOWED=false</code>, invitations off</td></tr>
+                        <tr><td>Vault account takeover</td><td>Master password plus two-step login</td></tr>
+                        <tr><td>Data loss</td><td>Off-box backup of Vaultwarden data</td></tr>
+                        <tr><td>CA compromise</td><td>Root CA private key kept on one PC, never copied to devices or the server</td></tr>
+                    </tbody>
+                </table>
+                </div>
+
+                <h2>Problems and Fixes</h2>
+                <div class="table-wrap">
+                <table>
+                    <thead><tr><th>Problem</th><th>Cause</th><th>Fix</th></tr></thead>
+                    <tbody>
+                        <tr><td>502 Bad Gateway on the dashboard's proxy host</td><td>Proxy pointed at the wrong internal port</td><td>Found the real listener with <code>ss -tlnp</code> and confirmed the scheme with <code>curl</code>, then corrected the proxy host</td></tr>
+                        <tr><td>Vaultwarden: "insecure context" error</td><td>Opening the backend address over plain HTTP</td><td>Only access the vault through its HTTPS proxy hostname</td></tr>
+                        <tr><td>Bitwarden extension: "KDF config response does not contain a valid KDF type"</td><td>Client newer than what the Vaultwarden image supported</td><td>Updated the Vaultwarden image to <code>latest</code> and set the extension's self-hosted server URL with no path</td></tr>
+                        <tr><td>Locked out of the vault after a failed hardware-key registration</td><td>Two-step login left in a state the key couldn't satisfy</td><td>Removed two-step login from the Vaultwarden admin panel, signed in, and re-enrolled</td></tr>
+                        <tr><td>Actual Budget wouldn't load over HTTP</td><td><code>SharedArrayBuffer</code> requires a secure context</td><td>Added its own proxy host on the wildcard certificate</td></tr>
+                        <tr><td>Apps unreachable on the LAN with the VPN off</td><td>VPN hostname only resolves through NetBird DNS</td><td>Hosts-file entries mapping the names to the LAN address</td></tr>
+                        <tr><td>Bare server IP showed the proxy's default page instead of the dashboard</td><td>Requests that don't match a proxy hostname fall through to the default site</td><td>Use the app hostnames or the app's own port on the LAN</td></tr>
+                        <tr><td>SMB copy: <code>ERROR 50</code> "request not supported" at the share root</td><td>Writing timestamps/attributes to the root of the share</td><td>Copied into a subfolder with <code>robocopy /COPY:DT /DCOPY:T</code></td></tr>
+                        <tr><td>SMB copy: <code>ERROR 2</code> at 99% for OneDrive files</td><td>Files were cloud-only placeholders with no local data</td><td>Reinstalled OneDrive, synced, and staged the files to a local folder first</td></tr>
+                        <tr><td>SMB copy: <code>0x80070032</code> on downloaded PDFs only</td><td>The exFAT share rejected the Mark-of-the-Web <code>Zone.Identifier</code> alternate data stream</td><td>Stripped it with <code>Unblock-File</code> before copying</td></tr>
+                    </tbody>
+                </table>
+                </div>
+
+                <h2>Findings</h2>
+                <div class="callout">
+                    <p class="mb-2"><strong>Vendor convenience features can be the weakest link.</strong> The built-in remote access worked out of the box, but on a public ZeroTier network it reduced security to a single dashboard password. Replacing it with identity-based, approval-gated access was the biggest security gain in the project.</p>
+                    <p class="mb-2"><strong>A reverse proxy only protects the routes that go through it.</strong> The dashboard and the proxy's admin page are still reachable directly by IP and port on the LAN, bypassing Access Lists. Closing that needs host firewall rules on the server.</p>
+                    <p class="mb-0"><strong>Passkeys don't migrate with a vault export.</strong> Passwords moved from Proton Pass to Vaultwarden, but passkeys didn't import from the export file; they have to be re-registered per site or moved with the Credential Exchange Protocol where both apps support it.</p>
+                </div>
+
+                <h2>Next Steps</h2>
+                <ul>
+                    <li>Block direct access to the dashboard and proxy-admin ports with host firewall rules, so all web access goes through the proxy.</li>
+                    <li>Set the proxy's default site to drop unmatched requests (444) instead of serving a page.</li>
+                    <li>Require client certificates (mutual TLS) on the dashboard's proxy host, so only devices holding a certificate from my CA can connect.</li>
+                    <li>Add MFA in front of the ZimaOS dashboard with forward authentication (Authelia or Keycloak), since ZimaOS has no native two-factor login.</li>
+                    <li>Replace per-device hosts files with local DNS records served to both LAN and VPN clients.</li>
+                    <li>Turn the spare Raspberry Pi into a hardened SSH jump host as the single admin entry point.</li>
+                </ul>
+
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer-area">
+        <div class="container">
+            <div class="">
+                <div class="site-logo text-center py-4">
+                    <img src="https://will-lacy.github.io/Portfolio/img/logo/logo.png" width="60px" alt="logo">
+                </div>
+                <div class="text-center">
+                    <h5 class="text-uppercase">Socials below:</h5>
+                    <a target="_blank" rel="noreferrer" href="https://github.com/Will-Lacy" class="social social-link"><i class="fab fa-github"></i></a>
+                    <a target="_blank" rel="noreferrer" href="https://www.linkedin.com/in/willlacy/" class="social social-link"><i class="fab fa-linkedin"></i></a>
+                    <a href="mailto:willplcy@gmail.com" class="social social-link"><i class="fas fa-envelope"></i></a>
+                </div>
+                <div class="copyrights text-center">
+                    <p class="para">|| Made with a fork of a Github Repository, linked below: ||</p>
+                    <p>
+                        <a class="github-button" href="https://github.com/alok722/alokraj.tech/fork"
+                            data-color-scheme="no-preference: dark; light: dark; dark: light;"
+                            data-icon="octicon-repo-forked" data-size="large" data-show-count="true"
+                            aria-label="Fork alok722/alokraj.tech on GitHub">Fork</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <button onclick="scrollToTop()" id="scroll-btn" title="Go to top"><i class="fas fa-arrow-up"></i></button>
+
+    <script>
+        let theme = localStorage.getItem("portfolio-theme") ? localStorage.getItem("portfolio-theme") : 'light';
+        if (theme == 'light') {
+            document.getElementsByClassName('toggle')[0].checked = true;
+            document.getElementsByClassName('toggle')[1].checked = true;
+        } else {
+            document.getElementsByClassName('toggle')[0].checked = false;
+            document.getElementsByClassName('toggle')[1].checked = false;
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            if (theme == 'light') {
+                document.getElementById("body").classList.remove('dark');
+            } else {
+                document.getElementById("body").classList.add('dark');
+            }
+        });
+
+        function toggleTheme() {
+            if (theme == 'light') {
+                document.getElementById("body").classList.add('dark');
+                theme = 'dark';
+                localStorage.setItem("portfolio-theme", 'dark');
+            } else {
+                document.getElementById("body").classList.remove('dark');
+                theme = 'light';
+                localStorage.setItem("portfolio-theme", 'light');
+            }
+        }
+    </script>
+
+    <script defer src="https://will-lacy.github.io/Portfolio/js/jquery.3.4.1.js"></script>
+    <script defer src="https://will-lacy.github.io/Portfolio/js/bootstrap.min.js"></script>
+    <script defer src="https://will-lacy.github.io/Portfolio/js/all.min.js"></script>
+    <script defer src="https://will-lacy.github.io/Portfolio/js/main.js"></script>
+    <script async defer src="https://buttons.github.io/buttons.js"></script>
+</body>
+
+</html>
